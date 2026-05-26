@@ -1,15 +1,13 @@
 package custompool;
 
-import custompool.config.ThreadPoolConfig;
+import custompool.config.ThreadPoolConfigLoader;
 import custompool.executor.CustomExecutor;
 import custompool.executor.CustomThreadPool;
-import custompool.rejection.AbortPolicy;
 import custompool.task.DemoTask;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
 
 public class Main {
 
@@ -26,19 +24,12 @@ public class Main {
     private static void normalWorkloadDemo() throws Exception {
         System.out.println("=== Normal workload demo ===");
 
-        ThreadPoolConfig config = new ThreadPoolConfig(
-                2,
-                4,
-                5,
-                TimeUnit.SECONDS,
-                5,
-                1
-        );
+        ThreadPoolConfigLoader configLoader = new ThreadPoolConfigLoader("pool.env");
 
         CustomExecutor executor = new CustomThreadPool(
-                "MyPool",
-                config,
-                new AbortPolicy()
+                configLoader.getPoolName(),
+                configLoader.getThreadPoolConfig(),
+                configLoader.getRejectedExecutionHandler()
         );
 
         for (int i = 1; i <= 8; i++) {
@@ -80,19 +71,12 @@ public class Main {
     private static void overloadDemo() throws InterruptedException {
         System.out.println("=== Overload demo ===");
 
-        ThreadPoolConfig config = new ThreadPoolConfig(
-                1,
-                2,
-                3,
-                TimeUnit.SECONDS,
-                1,
-                0
-        );
+        ThreadPoolConfigLoader configLoader = new ThreadPoolConfigLoader("overload-pool.env");
 
         CustomExecutor executor = new CustomThreadPool(
-                "OverloadPool",
-                config,
-                new AbortPolicy()
+                configLoader.getPoolName(),
+                configLoader.getThreadPoolConfig(),
+                configLoader.getRejectedExecutionHandler()
         );
 
         for (int i = 1; i <= 10; i++) {
